@@ -14,6 +14,8 @@
 
 import {fetch, openToast, runScriptsInElement} from 'frontend-js-web';
 
+import ViewMessageThread from './ViewMessageThread';
+
 function hideEl(elementId) {
 	const element = document.getElementById(elementId);
 
@@ -91,6 +93,9 @@ export default function Comments({
 						);
 
 						runScriptsInElement(newCommentsContainer);
+
+						const index = +indexElement.value + 1;
+						ViewMessageThread({index, namespace, randomNamespace});
 					}
 				})
 				.catch(() => {
