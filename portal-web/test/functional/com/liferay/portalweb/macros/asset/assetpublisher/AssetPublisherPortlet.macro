@@ -34,8 +34,6 @@ definition {
 
 		MenuItem.click(menuItem = "Other Site or Asset Library...");
 
-		SelectFrame(value1 = "relative=top");
-
 		SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
 		Navigator.gotoNavTab(navTab = "Sites That I Administer");
@@ -238,26 +236,7 @@ definition {
 	}
 
 	macro configureCollectionProviderPG {
-		WaitForLiferayEvent.initializeLiferayEventLog();
-
-		if (isSet(columnNumnber)) {
-			MouseOver.mouseOverNotVisible(
-				key_columnNumber = "${columnNumnber}",
-				key_portletName = "Asset Publisher",
-				locator1 = "Home#PAGE_COLUMN_PORTLET_HEADER_ELLIPSIS");
-
-			Click.waitForMenuToggleJSClick(
-				key_columnNumber = "${columnNumnber}",
-				key_portletName = "Asset Publisher",
-				locator1 = "Home#PAGE_COLUMN_PORTLET_HEADER_ELLIPSIS");
-
-			MenuItem.click(menuItem = "Configuration");
-
-			SelectFrame(locator1 = "IFrame#MODAL_BODY");
-		}
-		else {
-			AssetPublisherPortlet.gotoConfigurationPG(portletName = "Asset Publisher");
-		}
+		AssetPublisherPortlet.gotoConfigurationPG(portletIndex = "${columnNumnber}");
 
 		Navigator.gotoNavTab(navTab = "Asset Selection");
 
@@ -456,8 +435,6 @@ definition {
 
 			MenuItem.click(menuItem = "Other Site or Asset Library...");
 
-			SelectFrame(value1 = "relative=top");
-
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
 			Navigator.gotoNavTab(navTab = "Asset Libraries");
@@ -572,8 +549,6 @@ definition {
 		if (isSet(otherSite)) {
 			MenuItem.click(menuItem = "Other Site or Asset Library...");
 
-			SelectFrame(value1 = "relative=top");
-
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
 			Navigator.gotoNavTab(navTab = "Sites That I Administer");
@@ -583,8 +558,6 @@ definition {
 
 		if (isSet(depotName)) {
 			MenuItem.click(menuItem = "Other Site or Asset Library...");
-
-			SelectFrame(value1 = "relative=top");
 
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
@@ -695,8 +668,6 @@ definition {
 		else {
 			MenuItem.click(menuItem = "Other Site or Asset Library...");
 
-			SelectFrame(value1 = "relative=top");
-
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
 			if ("${siteScopeType}" == "Child Site") {
@@ -718,10 +689,6 @@ definition {
 			AssertTextEquals(
 				locator1 = "APConfigurationSites#SITES_TABLE_NAME",
 				value1 = "${siteName}");
-
-			AssertTextEquals(
-				locator1 = "APConfigurationSites#SITES_TABLE_TYPE",
-				value1 = "${siteScopeType}");
 
 			Click(locator1 = "SitesSelectSite#SITES_TABLE_CHOOSE_SITE_LINK");
 
@@ -1133,6 +1100,12 @@ definition {
 			AssertTextEquals.assertPartialText(
 				locator1 = "AP#ASSET_ABSTRACT_DETAIL_CONTENT",
 				value1 = "${assetContent}");
+
+			if (isSet(imageThumbnailName)) {
+				AssertVisible(
+					key_thumbnailName = "${imageThumbnailName}",
+					locator1 = "AP#ASSET_ABSTRACT_DETAIL_IMAGE_THUMBNAIL");
+			}
 		}
 	}
 
@@ -1315,8 +1288,6 @@ definition {
 
 			MenuItem.click(menuItem = "Other Site or Asset Library...");
 
-			SelectFrame(value1 = "relative=top");
-
 			SelectFrame(locator1 = "IFrame#SELECT_SITES");
 
 			AssertClick.assertPartialTextClickAt(
@@ -1335,10 +1306,6 @@ definition {
 			AssertTextEquals(
 				locator1 = "APConfigurationSites#SITES_TABLE_NAME",
 				value1 = "${liferaySiteName}");
-
-			AssertTextEquals(
-				locator1 = "APConfigurationSites#SITES_TABLE_TYPE",
-				value1 = "${liferaySiteType}");
 
 			AssertElementPresent(locator1 = "SitesSelectSite#SITES_TABLE_CHOOSE_SITE_LINK");
 		}
@@ -1579,7 +1546,7 @@ definition {
 
 		Panel.expandPanel(panel = "Asset Entries");
 
-		Click(locator1 = "APConfigurationManual#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT");
+		Click(locator1 = "APConfiguration#ASSET_SELECTION_MANUAL_ASSET_ENTRIES_SELECT_BUTTON");
 
 		for (var assetEntryType : list "${assetEntryTypes}") {
 			AssertTextEquals.assertPartialText(

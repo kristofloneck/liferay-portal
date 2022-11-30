@@ -71,7 +71,7 @@ definition {
 
 		Click(locator1 = "Form#SIDEBAR_ELLIPSIS");
 
-		Click(locator1 = "Form#SIDEBAR_MENUITEM_REMOVE_FIELD");
+		DropdownMenuItem.click(menuItem = "Delete");
 	}
 
 	macro gotoEditField {
@@ -200,7 +200,11 @@ definition {
 
 		AssertElementPresent(locator1 = "Icon#ROW_VERTICAL_ELLIPSIS_N");
 
-		LexiconEntry.gotoEllipsisMenuItem(menuItem = "View");
+		Click.waitForMenuToggleJSClick(locator1 = "LexiconList#LIST_ENTRY_ELLIPSIS_GENERIC");
+
+		WaitForLiferayEvent.initializeLiferayEventLog();
+
+		MenuItem.click(menuItem = "View");
 	}
 
 	macro gotoViewEntries {

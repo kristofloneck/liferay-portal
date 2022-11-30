@@ -966,7 +966,7 @@ definition {
 	macro checkDocumentCheckboxCP {
 		var key_dmDocumentTitle = "${dmDocumentTitle}";
 
-		Check(locator1 = "DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX");
+		Check.checkNotVisible(locator1 = "DocumentsAndMedia#ICON_DOCUMENT_CHECKBOX");
 	}
 
 	macro checkDocumentCheckboxPG {
@@ -1859,7 +1859,7 @@ definition {
 		AssertTextEquals(
 			key_mgDocumentTitle = "${mgDocumentTitleEdit}",
 			locator1 = "MediaGallery#IMAGE_TITLE",
-			value1 = "${mgDocumentTitleEdit}");
+			value1 = "${mgDocumentTitleEdit} - ${mgDocumentDescriptionEdit}");
 	}
 
 	macro editSavePG {
@@ -1912,13 +1912,27 @@ definition {
 				value1 = "You are editing the tags for the selected item.");
 		}
 
-		Type(
-			locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
-			value1 = "${tagName}");
+		if (isSet(autocomplete)) {
+			Click(locator1 = "Modal#BODY");
 
-		KeyPress(
-			locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
-			value1 = ",");
+			Type.sendKeys(
+				locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
+				value1 = "ta");
+
+			AssertClick(
+				key_tagName = "tagone",
+				locator1 = "AssetCategorization#TAG_AUTOCOMPLETE_SPECIFIC",
+				value1 = "tagone");
+		}
+		else {
+			Type(
+				locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
+				value1 = "${tagName}");
+
+			KeyPress(
+				locator1 = "DocumentsAndMedia#EDIT_TAGS_FIELD",
+				value1 = ",");
+		}
 
 		Button.clickSave();
 
@@ -2080,7 +2094,7 @@ definition {
 			MenuItem.click(menuItem = "Move");
 		}
 
-		SelectFrame(locator1 = "DocumentsAndMediaSelectFolder#SELECT_FOLDER_IFRAME");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		if ("${dmFolderName}" == "Home") {
 			if (IsElementPresent(key_breadcrumbName = "Home", locator1 = "BreadcrumbPortlet#BREADCRUMB_FOLDER")) {
@@ -2138,7 +2152,7 @@ definition {
 			MenuItem.click(menuItem = "Move");
 		}
 
-		SelectFrame(locator1 = "IFrame#SELECT_FOLDER");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		var key_dmFolderName = "${dmFolderName}";
 
@@ -2196,7 +2210,7 @@ definition {
 
 		MenuItem.click(menuItem = "Move");
 
-		SelectFrame(locator1 = "DocumentsAndMediaSelectFolder#SELECT_FOLDER_IFRAME");
+		SelectFrame(locator1 = "IFrame#MODAL_BODY");
 
 		var key_dmFolderName = "${dmSubFolderName}";
 
@@ -2914,7 +2928,7 @@ definition {
 			}
 		}
 		else {
-			var cacheControlAttribute = "Cache-Control: ${cacheControl}, max-age: ${maxAge}";
+			var cacheControlAttribute = "Cache-Control: ${cacheControl}, max-age= ${maxAge}";
 
 			if (contains("${responseHeader}", "${cacheControlAttribute}")) {
 				echo("The cache control setting is correct");

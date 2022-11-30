@@ -15,12 +15,18 @@
 import {ClayCheckbox} from '@clayui/form';
 import ClayIcon from '@clayui/icon';
 import {ClayTooltipProvider} from '@clayui/tooltip';
+
+// @ts-ignore
+
 import {FrontendDataSet} from '@liferay/frontend-data-set-web';
 import {
 	Card,
 	ExpressionBuilder,
 	onActionDropdownItemClick,
 	openToast,
+
+	// @ts-ignore
+
 } from '@liferay/object-js-components-web';
 import React, {useEffect, useMemo} from 'react';
 
@@ -28,9 +34,11 @@ import './PredefinedValuesTable.scss';
 
 export default function PredefinedValuesTable({
 	currentObjectDefinitionFields,
+	disableRequiredChecked,
 	errors,
 	objectFieldsMap,
 	setValues,
+	title,
 	validateExpressionURL,
 	values,
 }: IProps) {
@@ -217,6 +225,7 @@ export default function PredefinedValuesTable({
 
 			parentWindow.Liferay.fire('openModalAddColumns', {
 				disableRequired: true,
+				disableRequiredChecked,
 				getName: ({name}: ObjectField) => name,
 				header: Liferay.Language.get('add-fields'),
 				items: currentObjectDefinitionFields,
@@ -262,6 +271,7 @@ export default function PredefinedValuesTable({
 		};
 	}, [
 		currentObjectDefinitionFields,
+		disableRequiredChecked,
 		objectFieldsMap,
 		predefinedValues,
 		setValues,
@@ -272,7 +282,7 @@ export default function PredefinedValuesTable({
 		<>
 			<Card
 				className="lfr-object-web__predefined-values-card"
-				title={Liferay.Language.get('predefined-values')}
+				title={title ?? Liferay.Language.get('predefined-values')}
 				viewMode="no-margin"
 			>
 				<div className="lfr-object-web__predefined-values-table">
@@ -342,10 +352,12 @@ export default function PredefinedValuesTable({
 
 interface IProps {
 	currentObjectDefinitionFields: ObjectField[];
+	disableRequiredChecked?: boolean;
 	errors: {[key: string]: string};
 	objectFieldsMap: Map<string, ObjectField>;
 	predefinedValues?: PredefinedValue[];
 	setValues: (params: Partial<ObjectAction>) => void;
+	title?: string;
 	validateExpressionURL: string;
 	values: Partial<ObjectAction>;
 }

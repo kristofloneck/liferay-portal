@@ -78,7 +78,7 @@ import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
-import com.liferay.portal.kernel.util.LocalizationUtil;
+import com.liferay.portal.kernel.util.Localization;
 import com.liferay.portal.kernel.util.MathUtil;
 import com.liferay.portal.kernel.util.MimeTypes;
 import com.liferay.portal.kernel.util.NotificationThreadLocal;
@@ -114,7 +114,6 @@ import com.liferay.wiki.engine.WikiEngine;
 import com.liferay.wiki.engine.WikiEngineRenderer;
 import com.liferay.wiki.escape.WikiEscapeUtil;
 import com.liferay.wiki.exception.DuplicatePageException;
-import com.liferay.wiki.exception.DuplicatePageExternalReferenceCodeException;
 import com.liferay.wiki.exception.NoSuchPageException;
 import com.liferay.wiki.exception.PageContentException;
 import com.liferay.wiki.exception.PageTitleException;
@@ -255,9 +254,6 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		Date date = new Date();
 
 		long pageId = counterLocalService.increment();
-
-		_validateExternalReferenceCode(
-			externalReferenceCode, node.getGroupId());
 
 		content = SanitizerUtil.sanitize(
 			user.getCompanyId(), node.getGroupId(), userId,
@@ -579,7 +575,9 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			page.getNodeId(), page.getTitle());
 
 		for (WikiPage childPage : childPages) {
-			if (childPage.isApproved() || childPage.isInTrashImplicitly()) {
+			if (childPage.isApproved() ||
+				_trashHelper.isInTrashImplicitly(childPage)) {
+
 				wikiPageLocalService.deletePage(childPage);
 			}
 			else {
@@ -594,7 +592,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		for (WikiPage redirectorPage : redirectorPages) {
 			if (redirectorPage.isApproved() ||
-				redirectorPage.isInTrashImplicitly()) {
+				_trashHelper.isInTrashImplicitly(redirectorPage)) {
 
 				wikiPageLocalService.deletePage(redirectorPage);
 			}
@@ -679,7 +677,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		// Trash
 
 		if (page.isInTrash()) {
-			if (page.isInTrashExplicitly()) {
+			if (_trashHelper.isInTrashExplicitly(page)) {
 				page.setTitle(_trashHelper.getOriginalTitle(page.getTitle()));
 
 				_trashEntryLocalService.deleteEntry(
@@ -702,7 +700,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		// Cache
 
-		clearPageCache(page);
+		_clearPageCache();
 
 		// Version pages
 
@@ -1615,7 +1613,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 				RestoreEntryException.INVALID_STATUS);
 		}
 
-		if (page.isInTrashExplicitly()) {
+		if (_trashHelper.isInTrashExplicitly(page)) {
 			_movePageFromTrash(userId, page, newNodeId, newParentTitle);
 		}
 		else {
@@ -1906,7 +1904,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 				RestoreEntryException.INVALID_STATUS);
 		}
 
-		if (page.isInTrashExplicitly()) {
+		if (_trashHelper.isInTrashExplicitly(page)) {
 			_movePageFromTrash(
 				userId, page, page.getNodeId(), page.getParentTitle());
 		}
@@ -2226,7 +2224,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 			// Cache
 
-			clearPageCache(page);
+			_clearPageCache();
 		}
 		else {
 			page = _updatePageStatus(user, page, status);
@@ -2299,20 +2297,20 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 			WikiFileUploadConfiguration.class, properties);
 	}
 
-	protected void clearPageCache(WikiPage page) {
-		if (!WikiCacheThreadLocal.isClearCache()) {
-			return;
-		}
-
-		_portalCache.removeAll();
-	}
-
 	@Deactivate
 	@Override
 	protected void deactivate() {
 		super.deactivate();
 
 		_serviceTrackerMap.close();
+
+		_portalCache.removeAll();
+	}
+
+	private void _clearPageCache() {
+		if (!WikiCacheThreadLocal.isClearCache()) {
+			return;
+		}
 
 		_portalCache.removeAll();
 	}
@@ -2524,7 +2522,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 			childPage = wikiPagePersistence.update(childPage);
 
-			if (childPage.isInTrashImplicitly()) {
+			if (_trashHelper.isInTrashImplicitly(childPage)) {
 				_moveDependentFromTrash(
 					childPage, newParentPage.getNodeId(),
 					newParentPage.getTitle());
@@ -2685,7 +2683,7 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 			redirectorPage = wikiPagePersistence.update(redirectorPage);
 
-			if (redirectorPage.isInTrashImplicitly()) {
+			if (_trashHelper.isInTrashImplicitly(redirectorPage)) {
 				_moveDependentFromTrash(
 					redirectorPage, newRedirectPage.getNodeId(),
 					redirectorPage.getParentTitle());
@@ -3094,12 +3092,12 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 		if (bodyLocalizedValuesMap != null) {
 			subscriptionSender.setLocalizedBodyMap(
-				LocalizationUtil.getMap(bodyLocalizedValuesMap));
+				_localization.getMap(bodyLocalizedValuesMap));
 		}
 
 		if (subjectLocalizedValuesMap != null) {
 			subscriptionSender.setLocalizedSubjectMap(
-				LocalizationUtil.getMap(subjectLocalizedValuesMap));
+				_localization.getMap(subjectLocalizedValuesMap));
 		}
 
 		subscriptionSender.setMailId(
@@ -3430,25 +3428,6 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 		_validate(nodeId, content, format);
 	}
 
-	private void _validateExternalReferenceCode(
-			String externalReferenceCode, long groupId)
-		throws PortalException {
-
-		if (Validator.isNull(externalReferenceCode)) {
-			return;
-		}
-
-		WikiPage wikiPage = fetchLatestPageByExternalReferenceCode(
-			groupId, externalReferenceCode);
-
-		if (wikiPage != null) {
-			throw new DuplicatePageExternalReferenceCodeException(
-				StringBundler.concat(
-					"Duplicate page external reference code ",
-					externalReferenceCode, " in group ", groupId));
-		}
-	}
-
 	private static final String _OUTGOING_LINKS = "OUTGOING_LINKS";
 
 	private static final Log _log = LogFactoryUtil.getLog(
@@ -3483,6 +3462,9 @@ public class WikiPageLocalServiceImpl extends WikiPageLocalServiceBaseImpl {
 
 	@Reference
 	private Language _language;
+
+	@Reference
+	private Localization _localization;
 
 	@Reference
 	private MimeTypes _mimeTypes;

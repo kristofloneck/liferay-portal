@@ -39,7 +39,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
-import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -79,9 +78,7 @@ import org.osgi.service.component.annotations.Reference;
  * @author Gabriel Albuquerque
  * @generated
  */
-@Component(
-	service = {NotificationTemplatePersistence.class, BasePersistence.class}
-)
+@Component(service = NotificationTemplatePersistence.class)
 public class NotificationTemplatePersistenceImpl
 	extends BasePersistenceImpl<NotificationTemplate>
 	implements NotificationTemplatePersistence {
@@ -200,7 +197,7 @@ public class NotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<NotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (NotificationTemplate notificationTemplate : list) {
@@ -951,7 +948,7 @@ public class NotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(2);
@@ -1179,7 +1176,7 @@ public class NotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<NotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 
 			if ((list != null) && !list.isEmpty()) {
 				for (NotificationTemplate notificationTemplate : list) {
@@ -1975,7 +1972,7 @@ public class NotificationTemplatePersistenceImpl
 
 		Object[] finderArgs = new Object[] {uuid, companyId};
 
-		Long count = (Long)finderCache.getResult(finderPath, finderArgs);
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
 
 		if (count == null) {
 			StringBundler sb = new StringBundler(3);
@@ -2112,8 +2109,6 @@ public class NotificationTemplatePersistenceImpl
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
 
 		dbColumnNames.put("uuid", "uuid_");
-		dbColumnNames.put("from", "from_");
-		dbColumnNames.put("to", "to_");
 		dbColumnNames.put("type", "type_");
 
 		setDBColumnNames(dbColumnNames);
@@ -2552,7 +2547,7 @@ public class NotificationTemplatePersistenceImpl
 
 		if (useFinderCache) {
 			list = (List<NotificationTemplate>)finderCache.getResult(
-				finderPath, finderArgs);
+				finderPath, finderArgs, this);
 		}
 
 		if (list == null) {
@@ -2622,7 +2617,7 @@ public class NotificationTemplatePersistenceImpl
 	@Override
 	public int countAll() {
 		Long count = (Long)finderCache.getResult(
-			_finderPathCountAll, FINDER_ARGS_EMPTY);
+			_finderPathCountAll, FINDER_ARGS_EMPTY, this);
 
 		if (count == null) {
 			Session session = null;
@@ -2838,7 +2833,7 @@ public class NotificationTemplatePersistenceImpl
 		NotificationTemplatePersistenceImpl.class);
 
 	private static final Set<String> _badColumnNames = SetUtil.fromArray(
-		new String[] {"uuid", "from", "to", "type"});
+		new String[] {"uuid", "type"});
 
 	@Override
 	protected FinderCache getFinderCache() {

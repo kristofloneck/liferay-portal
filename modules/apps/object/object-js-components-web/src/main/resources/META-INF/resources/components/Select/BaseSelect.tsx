@@ -23,7 +23,10 @@ import './index.scss';
 export interface CustomItem<T = string> {
 	checked?: boolean;
 	description?: string;
+	disabled?: boolean;
 	label: string;
+	popover?: {body: string; header: string};
+	type?: string;
 	value?: T;
 }
 
@@ -90,6 +93,7 @@ export function BaseSelect({
 						onClick={() => setDropdownActive((active) => !active)}
 						placeholder={placeholder}
 						ref={inputRef}
+						value={value}
 						{...restProps}
 					/>
 				)}

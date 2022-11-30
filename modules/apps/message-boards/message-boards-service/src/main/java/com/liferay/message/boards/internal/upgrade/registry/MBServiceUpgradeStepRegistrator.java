@@ -50,7 +50,7 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Sergio González
  */
-@Component(immediate = true, service = UpgradeStepRegistrator.class)
+@Component(service = UpgradeStepRegistrator.class)
 public class MBServiceUpgradeStepRegistrator implements UpgradeStepRegistrator {
 
 	@Override
@@ -94,7 +94,7 @@ public class MBServiceUpgradeStepRegistrator implements UpgradeStepRegistrator {
 			new MVCCVersionUpgradeProcess() {
 
 				@Override
-				protected String[] getModuleTableNames() {
+				protected String[] getTableNames() {
 					return new String[] {
 						"MBBan", "MBCategory", "MBDiscussion", "MBMailingList",
 						"MBMessage", "MBStatsUser", "MBThread", "MBThreadFlag"

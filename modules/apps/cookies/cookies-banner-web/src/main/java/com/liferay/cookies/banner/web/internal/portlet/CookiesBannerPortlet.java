@@ -17,6 +17,7 @@ package com.liferay.cookies.banner.web.internal.portlet;
 import com.liferay.cookies.banner.web.internal.constants.CookiesBannerPortletKeys;
 import com.liferay.cookies.banner.web.internal.constants.CookiesBannerWebKeys;
 import com.liferay.cookies.banner.web.internal.display.context.CookiesBannerDisplayContext;
+import com.liferay.cookies.configuration.CookiesConfigurationProvider;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCPortlet;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
 
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.Reference;
 
 /**
  * @author Eduardo García
@@ -50,7 +52,8 @@ import org.osgi.service.component.annotations.Component;
 		"javax.portlet.init-param.view-template=/cookies_banner/view.jsp",
 		"javax.portlet.name=" + CookiesBannerPortletKeys.COOKIES_BANNER,
 		"javax.portlet.resource-bundle=content.Language",
-		"javax.portlet.security-role-ref=power-user,user"
+		"javax.portlet.security-role-ref=power-user,user",
+		"javax.portlet.version=3.0"
 	},
 	service = Portlet.class
 )
@@ -62,7 +65,8 @@ public class CookiesBannerPortlet extends MVCPortlet {
 		throws IOException, PortletException {
 
 		CookiesBannerDisplayContext cookiesBannerDisplayContext =
-			new CookiesBannerDisplayContext(renderRequest, renderResponse);
+			new CookiesBannerDisplayContext(
+				_cookiesConfigurationProvider, renderRequest, renderResponse);
 
 		renderRequest.setAttribute(
 			CookiesBannerWebKeys.COOKIES_BANNER_DISPLAY_CONTEXT,
@@ -70,5 +74,8 @@ public class CookiesBannerPortlet extends MVCPortlet {
 
 		super.render(renderRequest, renderResponse);
 	}
+
+	@Reference
+	private CookiesConfigurationProvider _cookiesConfigurationProvider;
 
 }
