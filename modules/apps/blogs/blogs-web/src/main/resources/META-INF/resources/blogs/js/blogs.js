@@ -381,6 +381,7 @@ export default class Blogs {
 				const inputPermissionsViewRole = this._getElementById(
 					'inputPermissionsViewRole'
 				).value;
+				const isCreationScreen = this._getElementById("isCreationScreen").value;
 
 				const bodyData = addNamespace(
 					{
@@ -418,6 +419,7 @@ export default class Blogs {
 						referringPortletResource: this._getElementById(
 							'referringPortletResource'
 						).value,
+						isCreationScreen,
 						subtitle,
 						title,
 						urlTitle,
