@@ -1369,6 +1369,7 @@ public class DDMStructureLocalServiceWrapper
 	@Override
 	public DDMStructure updateStructure(
 			long userId, long structureId, long parentStructureId,
+			String structureKey,
 			java.util.Map<java.util.Locale, String> nameMap,
 			java.util.Map<java.util.Locale, String> descriptionMap,
 			String definition,
@@ -1376,8 +1377,8 @@ public class DDMStructureLocalServiceWrapper
 		throws com.liferay.portal.kernel.exception.PortalException {
 
 		return _ddmStructureLocalService.updateStructure(
-			userId, structureId, parentStructureId, nameMap, descriptionMap,
-			definition, serviceContext);
+			userId, structureId, parentStructureId, structureKey, nameMap,
+			descriptionMap, definition, serviceContext);
 	}
 
 	@Override
