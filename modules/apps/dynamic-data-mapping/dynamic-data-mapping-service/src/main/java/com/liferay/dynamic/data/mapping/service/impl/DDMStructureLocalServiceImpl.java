@@ -1507,6 +1507,7 @@ public class DDMStructureLocalServiceImpl
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
+	@Override
 	public DDMStructure updateStructure(
 			long userId, long structureId, long parentStructureId,
 			String structureKey, Map<Locale, String> nameMap,
@@ -1519,10 +1520,15 @@ public class DDMStructureLocalServiceImpl
 
 		User user = _userLocalService.getUser(userId);
 
+		_validate(
+			structure.getGroupId(), structure.getParentStructureId(),
+			structure.getClassNameId(), structureKey, nameMap,
+			structure.getDDMForm());
+
 		structure.setUserId(userId);
 		structure.setParentStructureId(parentStructureId);
 
-		if (structureKey != null) {
+		if (Validator.isNotNull(structureKey)) {
 			structure.setStructureKey(structureKey);
 		}
 
